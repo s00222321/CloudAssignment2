@@ -1,0 +1,37 @@
+{
+  "Comment": "A state machine to handle progress report generation and emailing",
+  "StartAt": "ProcessInput",
+  "States": {
+    "ProcessInput": {
+      "Type": "Pass",
+      "Parameters": {
+        "user_id.$": "$[0].user_id"
+      },
+      "Next": "GetRunningData"
+    },
+    "GetRunningData": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:370706567264:function:getRunningData",
+      "ResultPath": "$.running_data",
+      "Next": "GetMealData"
+    },
+    "GetMealData": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:370706567264:function:getMealData",
+      "ResultPath": "$.meal_data",
+      "Next": "GenerateProgressReport"
+    },
+    "GenerateProgressReport": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:370706567264:function:generateProgressReport",
+      "InputPath": "$",
+      "ResultPath": "$.report_data",
+      "Next": "EmailReport"
+    },
+    "EmailReport": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:370706567264:function:emailReport",
+      "End": true
+    }
+  }
+}
